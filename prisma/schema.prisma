@@ -1,0 +1,27 @@
+generator client {
+    provider = "prisma-client-js"
+}
+
+datasource db {
+    provider = "sqlite"
+    url      = "file:./data.db"
+}
+
+model User {
+    id  Int  @id @default(autoincrement())
+    email String @unique
+    name String?
+    dishes Dish[]
+}
+
+model Dish {
+    id  Int     @id @default(autoincrement())
+    createdAt   DateTime    @default(now())
+    updatedAt   DateTime    @updatedAt
+    viewCount Int @default(0)
+    name    String
+    published Boolean?
+    description String?
+    creator User?   @relation(fields: [creatorId], references: [id])
+    creatorId   Int?
+}

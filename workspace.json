@@ -1,10 +1,230 @@
 {
-  
-  
   "version": 2,
-  
-  "projects": {},
   "cli": {
-    "defaultCollection": "@nrwl/workspace"
+    "defaultCollection": "@nrwl/express"
+  },
+  "defaultProject": "user-service",
+  "projects": {
+    "user-service": {
+      "root": "apps/user-service",
+      "sourceRoot": "apps/user-service/src",
+      "projectType": "application",
+      "targets": {
+        "prisma": {
+          "executor": "@nrwl/workspace:run-commands",
+          "options": {
+            "parallel": true,
+            "commands": [
+              "npm exec prisma generate"
+            ]
+          }
+        },
+        "build": {
+          "executor": "@nrwl/node:build",
+          "outputs": [
+            "{options.outputPath}"
+          ],
+          "options": {
+            "outputPath": "dist/apps/user-service",
+            "main": "apps/user-service/src/main.ts",
+            "tsConfig": "apps/user-service/tsconfig.app.json",
+            "assets": [
+              "apps/user-service/src/assets"
+            ]
+          },
+          "configurations": {
+            "production": {
+              "optimization": true,
+              "extractLicenses": true,
+              "inspect": false,
+              "fileReplacements": [
+                {
+                  "replace": "apps/user-service/src/environments/environment.ts",
+                  "with": "apps/user-service/src/environments/environment.prod.ts"
+                }
+              ]
+            }
+          }
+        },
+        "serve": {
+          "executor": "@nrwl/workspace:run-commands",
+          "options": {
+            "command": "PORT=4002 npm exec ts-node-dev --no-notify --respawn --transpile-only apps/user-service/src/main"
+          }
+        },
+        "lint": {
+          "executor": "@nrwl/linter:eslint",
+          "options": {
+            "lintFilePatterns": [
+              "apps/user-service/**/*.ts"
+            ]
+          }
+        },
+        "test": {
+          "executor": "@nrwl/jest:jest",
+          "outputs": [
+            "coverage/apps/user-service"
+          ],
+          "options": {
+            "jestConfig": "apps/user-service/jest.config.js",
+            "passWithNoTests": true
+          }
+        }
+      }
+    },
+    "gateway": {
+      "root": "apps/gateway",
+      "sourceRoot": "apps/gateway/src",
+      "projectType": "application",
+      "targets": {
+        "prepare": {
+          "executor": "@nrwl/workspace:run-commands",
+          "options": {
+            "parallel": false,
+            "commands": [
+              "npx ts-node --transpile-only apps/dish-service/src/schema",
+              "npx ts-node --transpile-only apps/user-service/src/schema",
+              "nx prisma user-service",
+              "nx prisma dish-service",
+              "npx rover supergraph compose --config ./supergraph-config.yaml > supergraph.graphql"
+            ]
+          }
+        },
+        "launch": {
+          "executor": "@nrwl/workspace:run-commands",
+          "options": {
+            "parallel": true,
+            "commands": [
+              "nx serve gateway",
+              "nx serve user-service",
+              "nx serve dish-service"
+            ]
+          }
+        },
+        "serve": {
+          "executor": "@nrwl/workspace:run-commands",
+          "options": {
+            "parallel": true,
+            "commands": [
+              "npm exec ts-node-dev --no-notify --respawn --transpile-only apps/user-service/src/schema",
+              "npm exec ts-node-dev --no-notify --respawn --transpile-only apps/dish-service/src/schema",
+              "PORT=4001 npm exec ts-node-dev --no-notify --respawn --transpile-only apps/gateway/src/main"
+            ]
+          }
+        },
+        "build": {
+          "executor": "@nrwl/node:build",
+          "outputs": [
+            "{options.outputPath}"
+          ],
+          "options": {
+            "outputPath": "dist/apps/gateway",
+            "main": "apps/gateway/src/main.ts",
+            "tsConfig": "apps/gateway/tsconfig.app.json",
+            "assets": [
+              "apps/gateway/src/assets"
+            ]
+          },
+          "configurations": {
+            "production": {
+              "optimization": true,
+              "extractLicenses": true,
+              "inspect": false,
+              "fileReplacements": [
+                {
+                  "replace": "apps/gateway/src/environments/environment.ts",
+                  "with": "apps/gateway/src/environments/environment.prod.ts"
+                }
+              ]
+            }
+          }
+        },
+        "lint": {
+          "executor": "@nrwl/linter:eslint",
+          "options": {
+            "lintFilePatterns": [
+              "apps/gateway/**/*.ts"
+            ]
+          }
+        },
+        "test": {
+          "executor": "@nrwl/jest:jest",
+          "outputs": [
+            "coverage/apps/gateway"
+          ],
+          "options": {
+            "jestConfig": "apps/gateway/jest.config.js",
+            "passWithNoTests": true
+          }
+        }
+      }
+    },
+    "dish-service": {
+      "root": "apps/dish-service",
+      "sourceRoot": "apps/dish-service/src",
+      "projectType": "application",
+      "targets": {
+        "prisma": {
+          "executor": "@nrwl/workspace:run-commands",
+          "options": {
+            "parallel": true,
+            "commands": [
+              "npm exec prisma generate"
+            ]
+          }
+        },
+        "serve": {
+          "executor": "@nrwl/workspace:run-commands",
+          "options": {
+            "command": "PORT=4003 npm exec ts-node-dev --no-notify --respawn --transpile-only apps/dish-service/src/main"
+          }
+        },
+        "build": {
+          "executor": "@nrwl/node:build",
+          "outputs": [
+            "{options.outputPath}"
+          ],
+          "options": {
+            "outputPath": "dist/apps/dish-service",
+            "main": "apps/dish-service/src/main.ts",
+            "tsConfig": "apps/dish-service/tsconfig.app.json",
+            "assets": [
+              "apps/dish-service/src/assets"
+            ]
+          },
+          "configurations": {
+            "production": {
+              "optimization": true,
+              "extractLicenses": true,
+              "inspect": false,
+              "fileReplacements": [
+                {
+                  "replace": "apps/dish-service/src/environments/environment.ts",
+                  "with": "apps/dish-service/src/environments/environment.prod.ts"
+                }
+              ]
+            }
+          }
+        },
+        "lint": {
+          "executor": "@nrwl/linter:eslint",
+          "options": {
+            "lintFilePatterns": [
+              "apps/dish-service/**/*.ts"
+            ]
+          }
+        },
+        "test": {
+          "executor": "@nrwl/jest:jest",
+          "outputs": [
+            "coverage/apps/dish-service"
+          ],
+          "options": {
+            "jestConfig": "apps/dish-service/jest.config.js",
+            "passWithNoTests": true
+          }
+        }
+      }
+    }
   }
 }

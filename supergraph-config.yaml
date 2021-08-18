@@ -1,0 +1,9 @@
+subgraphs:
+  users:
+   routing_url: http://localhost:4002
+   schema:
+    file: ./apps/user-service/schema.graphql
+  dishes:
+   routing_url: http://localhost:4003
+   schema:
+    file: ./apps/dish-service/schema.graphql
